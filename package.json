@@ -1,0 +1,27 @@
+{
+  "name": "crypto-tools",
+  "version": "1.0.0",
+  "description": "crypto cli tools using aes-256-ctr",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "crypto-tools": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yanxi-me/crypto-tools.git"
+  },
+  "keywords": [
+    "crypto",
+    "aes",
+    "ctr"
+  ],
+  "author": "yanxi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yanxi-me/crypto-tools/issues"
+  },
+  "homepage": "https://github.com/yanxi-me/crypto-tools#readme"
+}
