@@ -1,6 +1,6 @@
 # crypto-tools
 
-encrypt & decrypt with encrypt
+encrypt & decrypt with aes-256-ctr
 
 ### install
 
