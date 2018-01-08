@@ -74,9 +74,13 @@ async function main() {
     const password = await ask('Input your password', true)
     console.log('EncryptedWords: ' + encrypt(password, words))
   } else if (choice === '2') {
-    const encryptedWords = await ask('input your encrypted words')
-    const password = await ask('input your password', true)
-    console.log('original words: ' + decrypt(password, encryptedWords))
+    const encryptedWords = await ask('Input your encrypted words')
+    const password = await ask('Input your password', true)
+    try {
+      console.log('original words: ' + decrypt(password, encryptedWords))
+    } catch(e) {
+      console.log("The encrypted words isn't match with the given password")
+    }
   } else {
     console.log('choice must be 1 or 2')
   }
