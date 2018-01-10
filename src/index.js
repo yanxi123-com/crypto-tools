@@ -2,6 +2,7 @@
 
 const crypto = require('crypto')
 const assert = require('assert')
+const bip49 = require('./bip49')
 
 const algorithm = 'aes-256-ctr'
 const readline = require('readline');
@@ -26,7 +27,7 @@ function ask(question, hidden) {
           stdin.pause();
           break;
         default:
-          process.stdout.write("\033[2K\033[200D" + question + ": " + Array(rl.line.length+1).join("*"));
+          stdout.write("\033[2K\033[200D" + question + ": " + Array(rl.line.length+1).join("*"));
           i++;
           break;
       }
@@ -68,7 +69,7 @@ function test() {
 }
 
 async function main() {
-  const choice = await ask('Select your choice: 1. encrypt 2. decrypt')
+  const choice = await ask('Select your choice (1. encrypt 2. decrypt 3. generate mnemonic 4. show addresses from mnemonic)')
   if (choice === '1') {
     const words = await ask('Input your words')
     const password = await ask('Input your password', true)
@@ -81,8 +82,17 @@ async function main() {
     } catch(e) {
       console.log("The encrypted words isn't match with the given password")
     }
+  } else if (choice === '3') {
+    console.log('random mnemonic: ', bip49.generateMnemonic())
+  } else if (choice === '4') {
+    const mnemonic = await ask('Input your mnemonic')
+    try {
+      bip49.printAddresses(mnemonic)
+    } catch (e) {
+      console.log('mnemonic is invalid')
+    }
   } else {
-    console.log('choice must be 1 or 2')
+    console.log('choice must be 1, 2, 3 or 4')
   }
   rl.close();
 }
