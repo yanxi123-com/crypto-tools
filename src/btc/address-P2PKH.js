@@ -1,12 +1,13 @@
 var wif = require('wif')
+var bitcoin = require('bitcoinjs-lib')
 var BigInteger = require('bigi')
 var ecdsa = require('bitcoinjs-lib/src/ecdsa')
-var bcrypto = require('bitcoinjs-lib/src/crypto')
 var NETWORKS = require('bitcoinjs-lib/src/networks')
-const bs58 = require('bs58')
-var baddress = require('bitcoinjs-lib/src/address')
 var ecurve = require('ecurve')
 var secp256k1 = ecurve.getCurveByName('secp256k1')
+var assert = require('assert')
+
+// console.log(bitcoin.crypto, bitcoin.address, NETWORKS)
 
 function hexPrivateKeyToAddress() {
   // 私钥 Buffer: 32 bytes, 256 bits, 2^256 = 2^8^32 = 2^4^64
@@ -24,7 +25,8 @@ function hexPrivateKeyToAddress() {
   console.log(`publicKey = ${publicKeyBuffer.toString('hex')}`)
 
   // 生成地址
-  var address = baddress.toBase58Check(bcrypto.hash160(publicKeyBuffer), NETWORKS.bitcoin.pubKeyHash)
+  var address = bitcoin.address.toBase58Check(bitcoin.crypto.hash160(publicKeyBuffer), NETWORKS.bitcoin.pubKeyHash)
+  assert(address === '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH')
   console.log(`address = ${address}\n`)
 }
 
@@ -41,7 +43,8 @@ function base58PrivateKeyToAddress() {
   console.log(`publicKey = ${publicKeyBuffer.toString('hex')}`)
 
   // 生成地址
-  var address = baddress.toBase58Check(bcrypto.hash160(publicKeyBuffer), NETWORKS.bitcoin.pubKeyHash)
+  var address = bitcoin.address.toBase58Check(bitcoin.crypto.hash160(publicKeyBuffer), NETWORKS.bitcoin.pubKeyHash)
+  assert(address === '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH')
   console.log(`address = ${address}\n`)
 }
 
