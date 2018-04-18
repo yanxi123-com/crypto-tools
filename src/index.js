@@ -73,7 +73,7 @@ async function main() {
   const choice = await ask(`Select
      1. encrypt
      2. decrypt
-     3. generate mnemonic
+     3. generate mnemonic (bip49)
      4. show addresses from mnemonic (BTC m/49'/0'/0')
      5. EOS private to public\nYour choice`)
   if (choice === '1') {
