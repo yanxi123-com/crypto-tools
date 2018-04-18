@@ -26,6 +26,7 @@
   "homepage": "https://github.com/yanxi-me/crypto-tools#readme",
   "dependencies": {
     "bip39": "^2.5.0",
-    "bitcoinjs-lib": "^3.3.2"
+    "bitcoinjs-lib": "^3.3.2",
+    "eosjs-ecc": "^3.0.2"
   }
 }
