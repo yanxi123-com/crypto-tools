@@ -2,6 +2,8 @@
 
 const crypto = require('crypto')
 const assert = require('assert')
+const { createCipheriv, createHash } = require('crypto');
+
 const bip49 = require('./bip49')
 const ecc = require('./eos/ecc')
 
@@ -48,7 +50,11 @@ function ask(question, hidden) {
 }
 
 function encrypt (password, words) {
-  const cipher = crypto.createCipher(algorithm, password)
+  const [keyHex, ivHex] = compute(algorithm, password);
+  const key = Buffer.from(keyHex, 'hex');
+  const iv  = Buffer.from(ivHex, 'hex');
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+
   let crypted = cipher.update(words, 'utf8', 'hex')
   crypted += cipher.final('hex')
   return crypted
@@ -59,6 +65,35 @@ function decrypt(password, encryptedWords) {
   let dec = decipher.update(encryptedWords, 'hex', 'utf8')
   dec += decipher.final('utf8')
   return dec
+}
+
+function sizes(cipher) {
+  for (let nkey = 1, niv = 0;;) {
+    try {
+      createCipheriv(cipher, '.'.repeat(nkey), '.'.repeat(niv));
+      return [nkey, niv];
+    } catch (e) {
+      if (/invalid iv length/i.test(e.message)) niv += 1;
+      else if (/invalid key length/i.test(e.message)) nkey += 1;
+      else throw e;
+    }
+  }
+}
+
+function compute(cipher, passphrase) {
+  let [nkey, niv] = sizes(cipher);
+  for (let key = '', iv = '', p = '';;) {
+    const h = createHash('md5');
+    h.update(p, 'hex');
+    h.update(passphrase);
+    p = h.digest('hex');
+    let n, i = 0;
+    n = Math.min(p.length-i, 2*nkey);
+    nkey -= n/2, key += p.slice(i, i+n), i += n;
+    n = Math.min(p.length-i, 2*niv);
+    niv -= n/2, iv += p.slice(i, i+n), i += n;
+    if (nkey+niv === 0) return [key, iv];
+  }
 }
 
 function test() {
