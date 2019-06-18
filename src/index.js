@@ -2,7 +2,10 @@
 
 const crypto = require('crypto')
 const assert = require('assert')
+const { createCipheriv, createHash } = require('crypto');
+
 const bip49 = require('./bip49')
+const ecc = require('./eos/ecc')
 
 const algorithm = 'aes-256-ctr'
 const readline = require('readline');
@@ -47,7 +50,11 @@ function ask(question, hidden) {
 }
 
 function encrypt (password, words) {
-  const cipher = crypto.createCipher(algorithm, password)
+  const [keyHex, ivHex] = compute(algorithm, password);
+  const key = Buffer.from(keyHex, 'hex');
+  const iv  = Buffer.from(ivHex, 'hex');
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+
   let crypted = cipher.update(words, 'utf8', 'hex')
   crypted += cipher.final('hex')
   return crypted
@@ -60,6 +67,35 @@ function decrypt(password, encryptedWords) {
   return dec
 }
 
+function sizes(cipher) {
+  for (let nkey = 1, niv = 0;;) {
+    try {
+      createCipheriv(cipher, '.'.repeat(nkey), '.'.repeat(niv));
+      return [nkey, niv];
+    } catch (e) {
+      if (/invalid iv length/i.test(e.message)) niv += 1;
+      else if (/invalid key length/i.test(e.message)) nkey += 1;
+      else throw e;
+    }
+  }
+}
+
+function compute(cipher, passphrase) {
+  let [nkey, niv] = sizes(cipher);
+  for (let key = '', iv = '', p = '';;) {
+    const h = createHash('md5');
+    h.update(p, 'hex');
+    h.update(passphrase);
+    p = h.digest('hex');
+    let n, i = 0;
+    n = Math.min(p.length-i, 2*nkey);
+    nkey -= n/2, key += p.slice(i, i+n), i += n;
+    n = Math.min(p.length-i, 2*niv);
+    niv -= n/2, iv += p.slice(i, i+n), i += n;
+    if (nkey+niv === 0) return [key, iv];
+  }
+}
+
 function test() {
   const words = 'Mayor Ben McAdams posed as a homeless person for 3 days and 2 nights'
   const password = 'Yahoo'
@@ -69,7 +105,12 @@ function test() {
 }
 
 async function main() {
-  const choice = await ask('Select your choice (1. encrypt 2. decrypt 3. generate mnemonic 4. show addresses from mnemonic)')
+  const choice = await ask(`Select
+     1. encrypt
+     2. decrypt
+     3. generate mnemonic (bip49)
+     4. show addresses from mnemonic (BTC m/49'/0'/0')
+     5. EOS private to public\nYour choice`)
   if (choice === '1') {
     const words = await ask('Input your words')
     const password = await ask('Input your password', true)
@@ -91,8 +132,16 @@ async function main() {
     } catch (e) {
       console.log('mnemonic is invalid')
     }
+  } else if (choice === '5') {
+    const private = await ask('Input your privateKey', true)
+    try {
+      const public = ecc.privateToPublic(private)
+      console.log('Public Key: ' + public)
+    } catch (e) {
+      console.log('private key is invalid')
+    }
   } else {
-    console.log('choice must be 1, 2, 3 or 4')
+    console.log('the choice is wrong')
   }
   rl.close();
 }

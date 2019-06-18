@@ -1,6 +1,6 @@
 {
   "name": "crypto-tools",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "crypto cli tools using aes-256-ctr",
   "main": "src/index.js",
   "scripts": {
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/yanxi-me/crypto-tools#readme",
   "dependencies": {
     "bip39": "^2.5.0",
-    "bitcoinjs-lib": "^3.3.2"
+    "bitcoinjs-lib": "^3.3.2",
+    "eosjs-ecc": "^3.0.2"
   }
 }
